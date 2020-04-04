@@ -9,8 +9,13 @@ async function graphqlRequest(query) {
   return await http.post("/graphql-api", requestBody);
 }
 
-async function getGeoSpread() {
-  let response = await http.get("/static/corona_spread.geojson");
+async function getDetailedCountries() {
+  let response = await http.get("/detailed-countries");
+  return response.data;
+}
+
+async function getGeoSpread(country) {
+  let response = await http.get(`/static/corona_${country}_spread.geojson`);
   return response.data;
 }
 
@@ -21,6 +26,7 @@ async function getDailyUpdate() {
 }
 
 const backend = {
+  getDetailedCountriesRequest: getDetailedCountries,
   getGeoSpreadRequest: getGeoSpread,
   getDailyUpdateRequest: getDailyUpdate,
 };

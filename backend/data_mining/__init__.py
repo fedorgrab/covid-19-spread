@@ -15,7 +15,10 @@ from backend.data_mining.service import COVID19API
 logger = logging.getLogger(__name__)
 
 # should be in appropriate format as an API documentation
-DETAILED_COUNTRIES = ["china", "australia", "US", "canada"]
+DETAILED_COUNTRIES_API_LOOKUPS = ["china", "australia", "US", "canada"]
+DETAILED_COUNTRIES_QUERY_NAMES = [
+    country.capitalize() for country in DETAILED_COUNTRIES_API_LOOKUPS
+]
 DETAILED_STATUSES = ["confirmed", "deaths", "recovered"]
 
 
@@ -37,7 +40,7 @@ def extract_detailed_countries_data(date_after=None):
         date_after = get_yesterday()
 
     countries_data_frames = []
-    for country in DETAILED_COUNTRIES:
+    for country in DETAILED_COUNTRIES_API_LOOKUPS:
         status_data_frames = []
 
         for status in DETAILED_STATUSES:
@@ -72,7 +75,7 @@ def remove_unnecessary_countries(data_frame):
     return data_frame[
         ~data_frame["country"].isin(
             [
-                *map(lambda x: x.capitalize(), DETAILED_COUNTRIES),
+                *map(lambda x: x.capitalize(), DETAILED_COUNTRIES_API_LOOKUPS),
                 "United States",
                 "Antarctica",
             ]
@@ -180,8 +183,18 @@ def update_data():
         if_exists="append",
     )
 
-    with open(f"{BackendSettings.STATIC_DIR}/corona_spread.geojson", "w") as f:
-        f.write(total[JSON_WRITE_FIELDS].to_json())
+    for country in DETAILED_COUNTRIES_QUERY_NAMES:
+        country_json = total[total["country"] == country][JSON_WRITE_FIELDS].to_json()
+        with open(
+                f"{BackendSettings.STATIC_DIR}/corona_{country.casefold()}_spread.geojson", "w"
+        ) as f:
+            f.write(country_json)
+
+    with open(f"{BackendSettings.STATIC_DIR}/corona_world_spread.geojson", "w") as f:
+        world_json = total[
+            ~total["country"].isin(DETAILED_COUNTRIES_QUERY_NAMES)
+        ][JSON_WRITE_FIELDS].to_json()
+        f.write(world_json)
 
     logging.warning(
         f"Virus spread data is updated in database and geojson file"

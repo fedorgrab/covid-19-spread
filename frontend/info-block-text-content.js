@@ -13,17 +13,17 @@ function includeTextContent(feature) {
   
   const provinceBlock = provinceName === "not_given" ? `` : `, ${provinceName}`;
   const locationText = `${countryName}${provinceBlock}`;
-  
+  const styleClassSuffix = siteColorTheme === "white" ? "-white-theme" : "";
   return `
 <div>
 <span class="location-label">${locationText}</span>
   <div class="stat-container">
     <div class="stat-value">
       <span >${casesConfirmed}</span><br>
-      <span class="color-red">${casesDeaths}</span><br>
-      <span class="color-green">${casesRecovered}</span>
+      <span class="color-red${styleClassSuffix}">${casesDeaths}</span><br>
+      <span class="color-green${styleClassSuffix}">${casesRecovered}</span>
     </div>
-    <div class="stat-label color-gray-small">
+    <div class="stat-label color-gray-small${styleClassSuffix}">
       <span>Confirmed</span><br>
       <span>Deaths</span><br>
       <span>Recovered</span>
