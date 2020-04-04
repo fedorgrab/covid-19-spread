@@ -1,17 +1,16 @@
 import logging
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import reduce
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 
-from backend.data_mining.service import COVID19API
-from backend.data_mining import serializers
-from backend.application.settings import BackendSettings
 from backend import models
 from backend.application import db
+from backend.application.settings import BackendSettings
+from backend.data_mining import serializers
+from backend.data_mining.service import COVID19API
 
 logger = logging.getLogger(__name__)
 
@@ -43,16 +42,13 @@ def extract_detailed_countries_data(date_after=None):
 
         for status in DETAILED_STATUSES:
             countries_json = COVID19API.get_details_for_country(
-                country=country,
-                status=status,
-                date_after=date_after
+                country=country, status=status, date_after=date_after
             )
             serializer = serializers.SERIALIZER_STATUS_MAPPING[status]
 
             data_frame = serializer.serialize_json_list(countries_json)
             data_frame = data_frame.sort_values(
-                by=f"cases_{status}",
-                ascending=False
+                by=f"cases_{status}", ascending=False
             ).drop_duplicates("province")
 
             if status == "confirmed":
@@ -64,7 +60,7 @@ def extract_detailed_countries_data(date_after=None):
 
         country_detailed_df = reduce(
             lambda left, right: pd.merge(left, right, on="province", how="left"),
-            status_data_frames
+            status_data_frames,
         )
 
         countries_data_frames.append(country_detailed_df)
@@ -73,9 +69,15 @@ def extract_detailed_countries_data(date_after=None):
 
 
 def remove_unnecessary_countries(data_frame):
-    return data_frame[~data_frame["country"].isin(
-        [*map(lambda x: x.capitalize(), DETAILED_COUNTRIES), "United States", "Antarctica"]
-    )]
+    return data_frame[
+        ~data_frame["country"].isin(
+            [
+                *map(lambda x: x.capitalize(), DETAILED_COUNTRIES),
+                "United States",
+                "Antarctica",
+            ]
+        )
+    ]
 
 
 def get_geospatial_data():
@@ -112,11 +114,21 @@ def inplace_empty_data(data_frame):
 
 
 DB_COLUMNS = [
-    "country", "province", "cases_confirmed", "cases_deaths", "cases_recovered", "created_at"
+    "country",
+    "province",
+    "cases_confirmed",
+    "cases_deaths",
+    "cases_recovered",
+    "created_at",
 ]
 JSON_WRITE_FIELDS = [
-    "country", "province", "cases_confirmed", "cases_deaths", "cases_recovered", "color",
-    "geometry"
+    "country",
+    "province",
+    "cases_confirmed",
+    "cases_deaths",
+    "cases_recovered",
+    "color",
+    "geometry",
 ]
 
 TOTAL_STAT_FIELDS = [
@@ -125,7 +137,7 @@ TOTAL_STAT_FIELDS = [
     "cases_recovered",
     "cases_confirmed_new",
     "cases_deaths_new",
-    "cases_recovered_new"
+    "cases_recovered_new",
 ]
 
 
@@ -134,7 +146,9 @@ def update_total_data():
     data_frame = serializers.WorldDataTotalAndNewSerializer.serialize_json_list(
         cases_for_all_countries, list_field_name="Countries"
     )
-    summarized_daily_stat = data_frame[TOTAL_STAT_FIELDS].apply(np.sum, axis=0).to_dict()
+    summarized_daily_stat = (
+        data_frame[TOTAL_STAT_FIELDS].apply(np.sum, axis=0).to_dict()
+    )
 
     daily_stat_record = models.VirusDailyStatRecord(**summarized_daily_stat)
 
@@ -160,7 +174,7 @@ def update_data():
         name=models.VirusSpreadRecord.__table_name__,
         con=db.engine,
         index=False,
-        if_exists="append"
+        if_exists="append",
     )
 
     with open(f"{BackendSettings.STATIC_DIR}/corona_spread.geojson", "w") as f:

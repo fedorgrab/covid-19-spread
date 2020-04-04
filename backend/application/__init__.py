@@ -1,5 +1,10 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+
+# fmt: off
+from backend import models  # noqa
+from backend import routes  # noqa
+from backend import scheduler  # noqa
 from backend.application.settings import BackendSettings
 
 backend_application = Flask(
@@ -11,8 +16,4 @@ backend_application = Flask(
 backend_application.config.from_object(BackendSettings)
 db = SQLAlchemy(backend_application)
 
-# fmt: off
-from backend import routes  # noqa
-from backend import models  # noqa
-from backend import scheduler  # noqa
 # fmt: on

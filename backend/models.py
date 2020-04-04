@@ -1,4 +1,5 @@
 import datetime
+
 from backend.application import db
 
 
@@ -11,11 +12,15 @@ class VirusSpreadRecord(db.Model):
     cases_confirmed = db.Column(db.Integer, nullable=True)
     cases_deaths = db.Column(db.Integer, nullable=True)
     cases_recovered = db.Column(db.Integer, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    created_at = db.Column(
+        db.DateTime, default=datetime.datetime.utcnow, nullable=False
+    )
 
     __table_name__ = "virus_spread_record"
     __table_args__ = (
-        db.UniqueConstraint("country", "province", "created_at", name="country_province_uc"),
+        db.UniqueConstraint(
+            "country", "province", "created_at", name="country_province_uc"
+        ),
     )
 
     def __repr__(self):
@@ -30,6 +35,8 @@ class VirusDailyStatRecord(db.Model):
     cases_confirmed_new = db.Column(db.Integer, nullable=True)
     cases_deaths_new = db.Column(db.Integer, nullable=True)
     cases_recovered_new = db.Column(db.Integer, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    created_at = db.Column(
+        db.DateTime, default=datetime.datetime.utcnow, nullable=False
+    )
 
     __table_name__ = "virus_daily_stat_record"

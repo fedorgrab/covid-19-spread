@@ -57,7 +57,7 @@ class WorldDataTotalAndNewSerializer(PandasDataFrameSerializer):
         "cases_recovered": "TotalRecovered",
         "cases_confirmed_new": "NewConfirmed",
         "cases_deaths_new": "NewDeaths",
-        "cases_recovered_new": "NewRecovered"
+        "cases_recovered_new": "NewRecovered",
     }
 
 
@@ -90,5 +90,5 @@ class CountryDetailRecovered(CountryDetailStatusSerializer):
 SERIALIZER_STATUS_MAPPING = {
     "confirmed": CountryDetailConfirmed,
     "deaths": CountryDetailDeaths,
-    "recovered": CountryDetailRecovered
+    "recovered": CountryDetailRecovered,
 }

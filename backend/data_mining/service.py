@@ -1,10 +1,15 @@
 import logging
+
 import requests
+
 from backend.data_mining import exceptions
 
 logger = logging.getLogger(__name__)
 
-API_ERROR_STATUS_CODE_MAPPING = {400: exceptions.ServiceError400, 500: exceptions.ServiceError500}
+API_ERROR_STATUS_CODE_MAPPING = {
+    400: exceptions.ServiceError400,
+    500: exceptions.ServiceError500,
+}
 
 
 class BaseAPI:
@@ -12,7 +17,9 @@ class BaseAPI:
     REQUEST_TIMEOUT = 150
 
     @classmethod
-    def _request(cls, method, endpoint, data=None, headers=None, timeout=REQUEST_TIMEOUT):
+    def _request(
+        cls, method, endpoint, data=None, headers=None, timeout=REQUEST_TIMEOUT
+    ):
         try:
             response = requests.api.request(
                 method,
@@ -29,7 +36,9 @@ class BaseAPI:
 
         if response.status_code in API_ERROR_STATUS_CODE_MAPPING:
             logger.error(msg="api responded with an error")
-            raise API_ERROR_STATUS_CODE_MAPPING[response.status_code](data=response.json())
+            raise API_ERROR_STATUS_CODE_MAPPING[response.status_code](
+                data=response.json()
+            )
 
         return response.json()
 
@@ -45,5 +54,5 @@ class COVID19API(BaseAPI):
     def get_details_for_country(cls, country, status, date_after):
         return cls._request(
             endpoint=f"/live/country/{country}/status/{status}/date/{date_after}",
-            method="get"
+            method="get",
         )

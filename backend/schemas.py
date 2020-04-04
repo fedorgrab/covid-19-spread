@@ -1,5 +1,6 @@
 import graphene
-from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
+from graphene_sqlalchemy import SQLAlchemyConnectionField, SQLAlchemyObjectType
+
 from backend import models
 
 

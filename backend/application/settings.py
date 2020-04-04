@@ -1,4 +1,5 @@
-from backend.application.config import BASE_DIR, ROOT_DIR, BACKEND_CONFIGS as B_CONF
+from backend.application.config import BACKEND_CONFIGS as B_CONF
+from backend.application.config import BASE_DIR, ROOT_DIR
 
 
 class BackendSettings:
@@ -21,5 +22,7 @@ class BackendSettings:
     DB_PASSWORD = B_CONF["DB_PASSWORD"]
     DB_HOST = B_CONF["DB_HOST"]
     DB_PORT = B_CONF["DB_PORT"]
-    SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+    SQLALCHEMY_DATABASE_URI = (
+        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = True
