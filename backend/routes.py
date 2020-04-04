@@ -7,12 +7,6 @@ from backend import models
 from backend.application import backend_application
 from backend.application.settings import BackendSettings
 
-# class VirusRecordObject(SQLAlchemyObjectType):
-#     class Meta:
-#         model = models.VirusSpreadRecord
-#         interfaces = (graphene.relay.Node,)
-#         filter_fields = ['cases_confirmed', 'cases_deaths', 'cases_recovered']
-
 
 class VirusDailyStatRecordObject(SQLAlchemyObjectType):
     class Meta:

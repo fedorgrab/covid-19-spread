@@ -6,8 +6,8 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
-from backend import models
 from backend.application import db
+from backend import models
 from backend.application.settings import BackendSettings
 from backend.data_mining import serializers
 from backend.data_mining.service import COVID19API
@@ -154,6 +154,9 @@ def update_total_data():
 
     db.session.add(daily_stat_record)
     db.session.commit()
+    logging.warning(
+        f"Total world data is updated {datetime.now().strftime('%Y-%m-%d %H:%M:%SZ')}"
+    )
 
 
 def update_data():

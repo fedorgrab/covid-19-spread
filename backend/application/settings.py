@@ -15,7 +15,8 @@ class BackendSettings:
     WORLD_FILE_PATH = f"{GEOSPATIAL_DIR}/{WORLD_FILE_NAME}"
     # Main application settings:
     UPDATE_DATA_EVERY_X_HOUR = 6
-
+    SENTRY_DNS = B_CONF["SENTRY_DNS"]
+    SECRET_KEY = B_CONF["SECRET_KEY"]
     # DATABASE:
     DB_NAME = B_CONF["DB_NAME"]
     DB_USER = B_CONF["DB_USER"]

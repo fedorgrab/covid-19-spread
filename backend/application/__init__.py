@@ -1,8 +1,12 @@
+# fmt: off
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sentry_sdk.integrations.flask import FlaskIntegration
+import sentry_sdk
 
-# fmt: off
 from backend.application.settings import BackendSettings
+
+sentry_sdk.init(dsn=BackendSettings.SENTRY_DNS, integrations=[FlaskIntegration()])
 
 backend_application = Flask(
     import_name=__name__,

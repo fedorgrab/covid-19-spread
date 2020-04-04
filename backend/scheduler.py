@@ -1,16 +1,15 @@
 import atexit
-
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from backend.application.settings import BackendSettings
-from backend.data_mining import update_data, update_total_data
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(
-    func=update_data, trigger="interval", hours=BackendSettings.UPDATE_DATA_EVERY_X_HOUR
+    func="backend.data_mining:update_data", trigger="interval",
+    hours=BackendSettings.UPDATE_DATA_EVERY_X_HOUR
 )
 scheduler.add_job(
-    func=update_total_data,
+    func="backend.data_mining:update_total_data",
     trigger="interval",
     hours=BackendSettings.UPDATE_DATA_EVERY_X_HOUR,
 )
