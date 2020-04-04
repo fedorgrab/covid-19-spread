@@ -1,4 +1,4 @@
-const HOST_URL = "http://localhost:5000";
+const HOST_URL = "";
 
 const http = axios.create({
   baseURL: `${HOST_URL}`,
