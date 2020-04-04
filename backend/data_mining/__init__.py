@@ -24,6 +24,7 @@ DETAILED_STATUSES = ["confirmed", "deaths", "recovered"]
 
 def extract_world_data():
     world_json = COVID19API.get_world_total_cases()
+
     return serializers.WorldDataTotalSerializer.serialize_json_list(
         world_json, list_field_name="Countries"
     )
@@ -48,7 +49,6 @@ def extract_detailed_countries_data(date_after=None):
                 country=country, status=status, date_after=date_after
             )
             serializer = serializers.SERIALIZER_STATUS_MAPPING[status]
-
             data_frame = serializer.serialize_json_list(countries_json)
             data_frame = data_frame.sort_values(
                 by=f"cases_{status}", ascending=False
@@ -165,7 +165,8 @@ def update_total_data():
 def update_data():
     world_by_countries_cases = extract_world_data()
     detailed_countries_cases = extract_detailed_countries_data()
-
+    detailed_countries_cases.to_csv("asdasd.csv")
+    world_by_countries_cases.to_csv("ddd.csv")
     world_geo, detailed_geo = get_geospatial_data()
     world_geo_data = pd.merge(world_geo, world_by_countries_cases, how="left")
     detailed_geo_data = pd.merge(detailed_geo, detailed_countries_cases, how="left")
