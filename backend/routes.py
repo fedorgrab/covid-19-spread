@@ -7,7 +7,7 @@ from graphene_sqlalchemy import SQLAlchemyConnectionField, SQLAlchemyObjectType
 from backend import models
 from backend.application import backend_application
 from backend.application.settings import BackendSettings
-from backend.data_mining import DETAILED_COUNTRIES_API_LOOKUPS
+from backend.data_mining import DETAILED_COUNTRIES
 
 
 class VirusDailyStatRecordObject(SQLAlchemyObjectType):
@@ -32,7 +32,7 @@ backend_application.add_url_rule(
 @backend_application.route("/detailed-countries", methods=["GET"])
 def detailed_countries():
     return Response(
-        json.dumps([country.casefold() for country in DETAILED_COUNTRIES_API_LOOKUPS])
+        json.dumps([country.casefold() for country in DETAILED_COUNTRIES])
     )
 
 

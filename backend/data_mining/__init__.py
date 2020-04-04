@@ -15,10 +15,7 @@ from backend.data_mining.service import COVID19API
 logger = logging.getLogger(__name__)
 
 # should be in appropriate format as an API documentation
-DETAILED_COUNTRIES_API_LOOKUPS = ["china", "australia", "US", "canada"]
-DETAILED_COUNTRIES_QUERY_NAMES = [
-    country.capitalize() for country in DETAILED_COUNTRIES_API_LOOKUPS
-]
+DETAILED_COUNTRIES = ["China", "Australia", "US", "Canada"]
 DETAILED_STATUSES = ["confirmed", "deaths", "recovered"]
 
 
@@ -32,7 +29,7 @@ def extract_world_data():
 
 def get_yesterday():
     today = datetime.now()
-    yesterday = today - timedelta(days=1)
+    yesterday = today - timedelta(days=2)
     return yesterday.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
@@ -41,7 +38,7 @@ def extract_detailed_countries_data(date_after=None):
         date_after = get_yesterday()
 
     countries_data_frames = []
-    for country in DETAILED_COUNTRIES_API_LOOKUPS:
+    for country in DETAILED_COUNTRIES:
         status_data_frames = []
 
         for status in DETAILED_STATUSES:
@@ -75,7 +72,7 @@ def remove_unnecessary_countries(data_frame):
     return data_frame[
         ~data_frame["country"].isin(
             [
-                *map(lambda x: x.capitalize(), DETAILED_COUNTRIES_API_LOOKUPS),
+                *map(lambda x: x.capitalize(), DETAILED_COUNTRIES),
                 "United States",
                 "Antarctica",
             ]
@@ -165,8 +162,7 @@ def update_total_data():
 def update_data():
     world_by_countries_cases = extract_world_data()
     detailed_countries_cases = extract_detailed_countries_data()
-    detailed_countries_cases.to_csv("asdasd.csv")
-    world_by_countries_cases.to_csv("ddd.csv")
+
     world_geo, detailed_geo = get_geospatial_data()
     world_geo_data = pd.merge(world_geo, world_by_countries_cases, how="left")
     detailed_geo_data = pd.merge(detailed_geo, detailed_countries_cases, how="left")
@@ -184,7 +180,7 @@ def update_data():
         if_exists="append",
     )
 
-    for country in DETAILED_COUNTRIES_QUERY_NAMES:
+    for country in DETAILED_COUNTRIES:
         country_json = total[total["country"] == country][JSON_WRITE_FIELDS].to_json()
         with open(
                 f"{BackendSettings.STATIC_DIR}/corona_{country.casefold()}_spread.geojson", "w"
@@ -193,7 +189,7 @@ def update_data():
 
     with open(f"{BackendSettings.STATIC_DIR}/corona_world_spread.geojson", "w") as f:
         world_json = total[
-            ~total["country"].isin(DETAILED_COUNTRIES_QUERY_NAMES)
+            ~total["country"].isin(DETAILED_COUNTRIES)
         ][JSON_WRITE_FIELDS].to_json()
         f.write(world_json)
 
