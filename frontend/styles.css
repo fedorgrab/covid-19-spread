@@ -1,0 +1,145 @@
+#googleMap {
+    height: 100%;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+}
+
+.main-container {
+    height: 100%;
+}
+
+.google-map-container {
+    position: relative;
+    height: 100%;
+}
+
+.large-size {
+    font-size: 24px;
+}
+
+#info-box {
+    background-color: #192331;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+    color: white;
+    border-radius: 5px;
+    top: 35px;
+    min-height: 80px;
+    min-width: 140px;
+    padding: 15px;
+    position: absolute;
+    right: 30px;
+    z-index: 4;
+}
+
+.location-label {
+    margin-bottom: 10px;
+    display: block;
+}
+
+.stat-label {
+    font-weight: 300;
+    margin-left: 20px;
+}
+
+.stat-value {
+    font-weight: 500;
+}
+
+.color-green {
+    color: #9aff78;
+}
+
+.color-green-white-theme {
+    color: #23880f;
+}
+
+.color-red {
+    color: #f6766c;
+}
+
+.color-red-white-theme {
+    color: #b61b13;
+}
+
+.color-white {
+    color: white;
+}
+
+.color-gray {
+    color: #AEAEAE;
+}
+
+.color-gray-white-theme {
+    color: #474747;
+}
+
+.color-gray-small {
+    color: #DFDFDF
+}
+
+.color-gray-small-white-theme {
+    color: #575757;
+}
+
+.stat-container {
+    display: flex;
+}
+
+.weight-normal {
+    font-weight: 300;
+}
+
+.switch-container {
+    position: absolute;
+    top: 35px;
+    left: 30px;
+    z-index: 4;
+}
+
+.header-footer {
+    padding: 10px 55px;
+    background: #192331;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    scroll-snap-align: start;
+}
+
+.header-footer-white-theme {
+    padding: 10px 55px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    scroll-snap-align: start;
+    background: #ededed;
+    color: black;
+}
+
+.footer-link {
+    color: white;
+    text-decoration: underline;
+}
+
+.footer-link-white-theme {
+    color: black;
+    text-decoration: underline;
+}
+
+#footer {
+    padding: 25px 55px;
+}
+
+.margin-left {
+    margin-left: 20px;
+}
+
+.header-stat p {
+    margin-bottom: 0;
+}
+
