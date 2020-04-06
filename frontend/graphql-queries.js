@@ -14,6 +14,7 @@ const dailyUpdateRecordQuery = `
   }
 }`;
 
+const detailedCountries = `{detailedCountries}`;
 
 function dayOneCountryQuery(country) {
   return `

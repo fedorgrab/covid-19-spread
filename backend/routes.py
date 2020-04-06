@@ -21,24 +21,23 @@ class VirusDayOneRecord(SQLAlchemyObjectType):
         model = models.VirusDayOneByCountry
         interfaces = (graphene.relay.Node,)
         filter_fields = {
-            # 'pk': ['exact'],
-            # 'detail': ['icontains', 'istartswith'],
-            # 'created_by__name': ['icontains', ],
-            # 'hidden': ['exact'],
-            # 'report': ['exact'],
             "country": ["exact"]
         }
 
 
 class Query(graphene.ObjectType):
     node = graphene.relay.Node.Field()
-    daily_update_records = SQLAlchemyConnectionField(VirusDailyStatRecordObject)
 
-    day_one_records = SQLAlchemyConnectionField(VirusDayOneRecord, country=graphene.String())
+    daily_update_records = SQLAlchemyConnectionField(type=VirusDailyStatRecordObject)
+    day_one_records = SQLAlchemyConnectionField(type=VirusDayOneRecord, country=graphene.String())
+    detailed_countries = graphene.List(of_type=graphene.String)
 
     def resolve_day_one_records(self, info, country):
         country = "".join([country[0].capitalize(), country[1:]])
         return models.VirusDayOneByCountry.query.filter_by(country=country)
+
+    def resolve_detailed_countries(self, info):
+        return DETAILED_COUNTRIES
 
 
 schema = graphene.Schema(query=Query)

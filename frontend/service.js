@@ -10,8 +10,8 @@ async function graphqlRequest(query) {
 }
 
 async function getDetailedCountries() {
-  let response = await http.get("/detailed-countries");
-  return response.data;
+  let response = await graphqlRequest(detailedCountries);
+  return response.data.data.detailedCountries;
 }
 
 async function getGeoSpread(country) {
