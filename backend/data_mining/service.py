@@ -47,12 +47,23 @@ class COVID19API(BaseAPI):
     BASE_URL = "https://api.covid19api.com"
 
     @classmethod
-    def get_world_total_cases(cls):
+    def get_countries(cls) -> list:
+        return cls._request(endpoint="/countries", method="get")
+
+    @classmethod
+    def get_world_total_cases(cls) -> dict:
         return cls._request(endpoint="/summary", method="get")
 
     @classmethod
-    def get_details_for_country(cls, country, status, date_after):
+    def get_details_for_country(cls, country, status, date_after) -> list:
         return cls._request(
             endpoint=f"/live/country/{country}/status/{status}/date/{date_after}",
             method="get",
+        )
+
+    @classmethod
+    def get_dayone_by_country(cls, country, status) -> list:
+        return cls._request(
+            endpoint=f"/total/dayone/country/{country}/status/{status}",
+            method="get"
         )

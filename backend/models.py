@@ -40,3 +40,14 @@ class VirusDailyStatRecord(db.Model):
     )
 
     __table_name__ = "virus_daily_stat_record"
+
+
+class VirusDayOneByCountry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    country = db.Column(db.String(120), nullable=False)
+    cases_confirmed = db.Column(db.Integer, nullable=True)
+    cases_deaths = db.Column(db.Integer, nullable=True)
+    cases_recovered = db.Column(db.Integer, nullable=True)
+    date = db.Column(db.Date, nullable=False)
+
+    __table_name__ = "virus_day_one_by_country"

@@ -19,14 +19,19 @@ async function getGeoSpread(country) {
   return response.data;
 }
 
-
 async function getDailyUpdate() {
-  let resp = await graphqlRequest(dailyUpdateRecordQuery);
-  return resp.data.data.dailyUpdateRecords.edges[0].node;
+  let response = await graphqlRequest(dailyUpdateRecordQuery);
+  return response.data.data.dailyUpdateRecords.edges[0].node;
+}
+
+async function getDayOneForCountry(country) {
+  let response = await graphqlRequest(dayOneCountryQuery(country));
+  return response.data.data.dayOneRecords.edges;
 }
 
 const backend = {
   getDetailedCountriesRequest: getDetailedCountries,
   getGeoSpreadRequest: getGeoSpread,
   getDailyUpdateRequest: getDailyUpdate,
+  getDayOneForCountryRequest: getDayOneForCountry,
 };

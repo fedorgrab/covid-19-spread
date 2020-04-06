@@ -60,6 +60,12 @@ class PandasDataFrameSerializer:
         return data_frame
 
 
+class CountrySerializer(PandasDataFrameSerializer):
+    field_mapping = {
+        "slug": "Slug"
+    }
+
+
 class WorldDataTotalSerializer(PandasDataFrameSerializer):
     field_mapping = {
         "country": "Country",
@@ -89,6 +95,7 @@ class WorldDataTotalAndNewSerializer(PandasDataFrameSerializer):
         "country": {
             "Russian Federation": "Russia",
             "Iran, Islamic Republic of": "Iran",
+            "Belarus": "Byelarus"
         }
     }
 
@@ -127,8 +134,46 @@ class CountryDetailRecovered(CountryDetailStatusSerializer):
     CASE_STATUS = "recovered"
 
 
+class DayOneByCountrySerializer(PandasDataFrameSerializer):
+    CASE_STATUS = None
+    api_values_change_on = {
+        "country": {
+            "United States of America": "US",
+            "Russian Federation": "Russia",
+            "Iran, Islamic Republic of": "Iran",
+            "Belarus": "Byelarus"
+        },
+    }
+
+    @classmethod
+    def get_field_mapping(cls):
+        return {
+            "country": "Country",
+            "date": "Date",
+            f"cases_{cls.CASE_STATUS}": f"Cases",
+        }
+
+
+class DayOneByCountryConfirmed(DayOneByCountrySerializer):
+    CASE_STATUS = "confirmed"
+
+
+class DayOneByCountryDeaths(DayOneByCountrySerializer):
+    CASE_STATUS = "deaths"
+
+
+class DayOneByCountryRecovered(DayOneByCountrySerializer):
+    CASE_STATUS = "recovered"
+
+
 SERIALIZER_STATUS_MAPPING = {
     "confirmed": CountryDetailConfirmed,
     "deaths": CountryDetailDeaths,
     "recovered": CountryDetailRecovered,
+}
+
+DAY_ONE_SERIALIZER_STATUS_MAPPING = {
+    "confirmed": DayOneByCountryConfirmed,
+    "deaths": DayOneByCountryDeaths,
+    "recovered": DayOneByCountryRecovered
 }

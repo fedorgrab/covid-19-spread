@@ -33,4 +33,5 @@ function toggleSwitch() {
   setMapStyle(mapStyle);
   setInfoBlockStyle(siteColorTheme);
   setHeaderFooterStyle(siteColorTheme);
+  restylePlot(siteColorTheme);
 }

@@ -1,4 +1,5 @@
 import logging
+import time
 from datetime import datetime, timedelta
 from functools import reduce
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 # should be in appropriate format as an API documentation
 DETAILED_COUNTRIES = ["China", "Australia", "US", "Canada"]
-DETAILED_STATUSES = ["confirmed", "deaths", "recovered"]
+CASE_STATUSES = ["confirmed", "deaths", "recovered"]
 
 
 def extract_world_data():
@@ -41,7 +42,7 @@ def extract_detailed_countries_data(date_after=None):
     for country in DETAILED_COUNTRIES:
         status_data_frames = []
 
-        for status in DETAILED_STATUSES:
+        for status in CASE_STATUSES:
             countries_json = COVID19API.get_details_for_country(
                 country=country, status=status, date_after=date_after
             )
@@ -64,6 +65,39 @@ def extract_detailed_countries_data(date_after=None):
         )
 
         countries_data_frames.append(country_detailed_df)
+
+    return pd.concat(countries_data_frames)
+
+
+def extract_day_one_by_country() -> pd.DataFrame:
+    countries_json = COVID19API.get_countries()
+    countries = serializers.CountrySerializer.serialize_json_list(countries_json)
+
+    countries_data_frames = []
+    for country in countries["slug"]:
+        status_data_frames = []
+
+        for status in CASE_STATUSES:
+            day_one_json = COVID19API.get_dayone_by_country(country=country, status=status)
+            day_one_status_data_frame = serializers.DAY_ONE_SERIALIZER_STATUS_MAPPING[
+                status
+            ].serialize_json_list(day_one_json)
+
+            day_one_status_data_frame.sort_values(by="date").drop_duplicates(ignore_index=True)
+            # day_one_status_data_frame["date"] = day_one_status_data_frame["date"].map(
+            #     lambda x: x.date()
+            # )
+            day_one_status_data_frame["date"] = pd.to_datetime(
+                day_one_status_data_frame["date"],
+                format="%Y-%m-%dT%H:%M:%SZ"
+            ).dt.date
+            status_data_frames.append(day_one_status_data_frame)
+
+        day_one_data_frame = reduce(
+            lambda left, right: pd.merge(left, right, on="date", how="left"),
+            status_data_frames,
+        )
+        countries_data_frames.append(day_one_data_frame)
 
     return pd.concat(countries_data_frames)
 
@@ -156,6 +190,21 @@ def update_total_data():
     db.session.commit()
     logging.warning(
         f"Total world data is updated {datetime.now().strftime('%Y-%m-%d %H:%M:%SZ')}"
+    )
+
+
+DAY_ONE_DB_COLUMNS = [
+    "country", "cases_confirmed", "cases_deaths", "cases_recovered", "date"
+]
+
+
+def update_day_one_data():
+    day_one_countries = extract_day_one_by_country()
+    day_one_countries[DAY_ONE_DB_COLUMNS].to_sql(
+        name=models.VirusDayOneByCountry.__table_name__,
+        con=db.engine,
+        index=False,
+        if_exists="append",
     )
 
 

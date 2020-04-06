@@ -41,9 +41,13 @@ function mouseoutListener(event) {
   map.data.revertStyle();
 }
 
-function clickListener(event) {
+
+async function clickListener(event) {
   textContent = includeTextContent(event.feature);
-  document.getElementById('info-box').innerHTML = textContent;
+  let country = event.feature.getProperty("country");
+  currentDayOne = await backend.getDayOneForCountryRequest(country);
+  plot(currentDayOne, siteColorTheme);
+  document.getElementById("info-box").innerHTML = textContent;
 }
 
 async function setMapGeoData() {

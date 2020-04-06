@@ -13,3 +13,21 @@ const dailyUpdateRecordQuery = `
     }
   }
 }`;
+
+
+function dayOneCountryQuery(country) {
+  return `
+  {
+    dayOneRecords(country: "${country}") {
+      edges {
+        node {
+          country
+          casesConfirmed
+          casesDeaths
+          casesRecovered
+          date
+        }
+      }
+    }
+  }`;
+}

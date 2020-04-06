@@ -7,12 +7,10 @@ let scrollPolygonCounter = 0;
 function trackScroll() {
   let scrollToPixel = document.getElementById("header-stat").offsetHeight;
   if (numberOfPolygonsToProcess <= numberOfProcessedPolygons) {
-    
     if (!polygonsProcessed) {
       window.scrollTo({top: scrollToPixel, behavior: "smooth"});
       polygonsProcessed = true;
     }
-    
     if (document.documentElement.scrollTop !== scrollToPixel) {
       scrollPolygonCounter += 1;
       if (scrollPolygonCounter % 40 === 0) {
@@ -24,7 +22,6 @@ function trackScroll() {
 
 function getStyleProvincePolygon(province) {
   trackScroll();
-  
   let colorCoeff = province.getProperty("color");
   // Additional scaling
   colorCoeff = colorCoeff < 0.05 ? colorCoeff * 2. : colorCoeff;
