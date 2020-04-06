@@ -1,5 +1,4 @@
 import logging
-import time
 from datetime import datetime, timedelta
 from functools import reduce
 
@@ -20,7 +19,7 @@ DETAILED_COUNTRIES = ["China", "Australia", "US", "Canada"]
 CASE_STATUSES = ["confirmed", "deaths", "recovered"]
 
 
-def extract_world_data():
+def extract_world_data() -> pd.DataFrame:
     world_json = COVID19API.get_world_total_cases()
 
     return serializers.WorldDataTotalSerializer.serialize_json_list(
@@ -84,9 +83,7 @@ def extract_day_one_by_country() -> pd.DataFrame:
             ].serialize_json_list(day_one_json)
 
             day_one_status_data_frame.sort_values(by="date").drop_duplicates(ignore_index=True)
-            # day_one_status_data_frame["date"] = day_one_status_data_frame["date"].map(
-            #     lambda x: x.date()
-            # )
+
             day_one_status_data_frame["date"] = pd.to_datetime(
                 day_one_status_data_frame["date"],
                 format="%Y-%m-%dT%H:%M:%SZ"

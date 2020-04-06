@@ -1,6 +1,7 @@
 import json
+
 import graphene
-from flask import send_from_directory, Response
+from flask import Response, send_from_directory
 from flask_graphql import GraphQLView
 from graphene_sqlalchemy import SQLAlchemyConnectionField, SQLAlchemyObjectType
 
@@ -20,16 +21,16 @@ class VirusDayOneRecord(SQLAlchemyObjectType):
     class Meta:
         model = models.VirusDayOneByCountry
         interfaces = (graphene.relay.Node,)
-        filter_fields = {
-            "country": ["exact"]
-        }
+        filter_fields = {"country": ["exact"]}
 
 
 class Query(graphene.ObjectType):
     node = graphene.relay.Node.Field()
 
     daily_update_records = SQLAlchemyConnectionField(type=VirusDailyStatRecordObject)
-    day_one_records = SQLAlchemyConnectionField(type=VirusDayOneRecord, country=graphene.String())
+    day_one_records = SQLAlchemyConnectionField(
+        type=VirusDayOneRecord, country=graphene.String()
+    )
     detailed_countries = graphene.List(of_type=graphene.String)
 
     def resolve_day_one_records(self, info, country):
@@ -50,9 +51,7 @@ backend_application.add_url_rule(
 
 @backend_application.route("/detailed-countries", methods=["GET"])
 def detailed_countries():
-    return Response(
-        json.dumps([country.casefold() for country in DETAILED_COUNTRIES])
-    )
+    return Response(json.dumps([country.casefold() for country in DETAILED_COUNTRIES]))
 
 
 @backend_application.route("/<path:filename>", methods=["GET"])
