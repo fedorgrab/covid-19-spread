@@ -7,8 +7,8 @@ from graphene_sqlalchemy import SQLAlchemyConnectionField, SQLAlchemyObjectType
 
 from backend import models
 from backend.application import backend_application
-from backend.application.settings import BackendSettings
 from backend.data_mining import DETAILED_COUNTRIES
+from backend.application.settings import BackendSettings
 
 
 class VirusDailyStatRecordObject(SQLAlchemyObjectType):
@@ -38,7 +38,7 @@ class Query(graphene.ObjectType):
         return models.VirusDayOneByCountry.query.filter_by(country=country)
 
     def resolve_detailed_countries(self, info):
-        return DETAILED_COUNTRIES
+        return [country_name.casefold() for country_name in DETAILED_COUNTRIES]
 
 
 schema = graphene.Schema(query=Query)
