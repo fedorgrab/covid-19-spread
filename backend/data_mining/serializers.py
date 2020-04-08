@@ -77,6 +77,7 @@ class WorldDataTotalSerializer(PandasDataFrameSerializer):
         "country": {
             "Russian Federation": "Russia",
             "Iran, Islamic Republic of": "Iran",
+            "Belarus": "Byelarus"
         }
     }
 
@@ -90,6 +91,7 @@ class WorldDataTotalAndNewSerializer(PandasDataFrameSerializer):
         "cases_confirmed_new": "NewConfirmed",
         "cases_deaths_new": "NewDeaths",
         "cases_recovered_new": "NewRecovered",
+        "date": "Date"
     }
     api_values_change_on = {
         "country": {

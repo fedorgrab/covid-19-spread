@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from functools import reduce
 
+from sqlalchemy import exc
 import geopandas as gpd
 import numpy as np
 import pandas as pd
@@ -170,6 +171,39 @@ TOTAL_STAT_FIELDS = [
     "cases_deaths_new",
     "cases_recovered_new",
 ]
+DAY_ONE_DB_COLUMNS = [
+    "country", "cases_confirmed", "cases_deaths", "cases_recovered", "date"
+]
+
+
+def reload_day_one_records():
+    day_one_countries = extract_day_one_by_country()
+
+    db.session.query(models.VirusDayOneByCountry).delete()
+    db.session.commit()
+
+    day_one_countries[DAY_ONE_DB_COLUMNS].to_sql(
+        name=models.VirusDayOneByCountry.__table_name__,
+        con=db.engine,
+        index=False,
+        if_exists="append",
+    )
+
+
+def update_day_one_records(data_frame):
+    df_to_update = data_frame[data_frame["cases_confirmed"] > 0]
+    try:
+        df_to_update[DAY_ONE_DB_COLUMNS].to_sql(
+            name=models.VirusDayOneByCountry.__table_name__,
+            con=db.engine,
+            index=False,
+            if_exists="append",
+        )
+    except exc.IntegrityError:
+        logging.warning(
+            "Day One daily record was tried to be included, "
+            "but `country_date_unique_constraint` restricted this session."
+        )
 
 
 def update_total_data():
@@ -177,31 +211,18 @@ def update_total_data():
     data_frame = serializers.WorldDataTotalAndNewSerializer.serialize_json_list(
         cases_for_all_countries, list_field_name="Countries"
     )
+
+    update_day_one_records(data_frame)
+
     summarized_daily_stat = (
         data_frame[TOTAL_STAT_FIELDS].apply(np.sum, axis=0).to_dict()
     )
-
     daily_stat_record = models.VirusDailyStatRecord(**summarized_daily_stat)
 
     db.session.add(daily_stat_record)
     db.session.commit()
     logging.warning(
         f"Total world data is updated {datetime.now().strftime('%Y-%m-%d %H:%M:%SZ')}"
-    )
-
-
-DAY_ONE_DB_COLUMNS = [
-    "country", "cases_confirmed", "cases_deaths", "cases_recovered", "date"
-]
-
-
-def update_day_one_data():
-    day_one_countries = extract_day_one_by_country()
-    day_one_countries[DAY_ONE_DB_COLUMNS].to_sql(
-        name=models.VirusDayOneByCountry.__table_name__,
-        con=db.engine,
-        index=False,
-        if_exists="append",
     )
 
 
