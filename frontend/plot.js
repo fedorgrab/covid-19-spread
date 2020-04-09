@@ -46,6 +46,7 @@ function plot(dayOneData, styleType) {
   let labels = ['Confirmed', 'Deaths', 'Recovered'];
   var data = [];
   
+  
   for (var i = 0; i < xData.length; i++) {
     var result = {
       x: xData[i].slice(0, numberOfPoints),
@@ -69,10 +70,13 @@ function plot(dayOneData, styleType) {
     };
     data.push(result, result2);
   }
+  let width = isMobile ?  $(window).width(): 300;
+  let height = isMobile ? 200: 300;
+  
   var layout = {
     showlegend: false,
-    height: 300,
-    width: 300,
+    height: height,
+    width: width,
     plot_bgcolor: background,
     paper_bgcolor: background,
     dtick: 3,
@@ -82,12 +86,10 @@ function plot(dayOneData, styleType) {
       showgrid: false,
       showticklabels: true,
       fixedrange: true,
-      // linecolor: "#DFDFDF",
       linecolor: xtickColor,
       linewidth: 2,
       tickwidth: 2,
       ticklen: 5,
-      // tickfont: {family: 'Roboto', size: 10, color: '#DFDFDF'}
       tickfont: {family: 'Roboto', size: 10, color: xtickColor}
     },
     yaxis: {

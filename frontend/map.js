@@ -1,5 +1,5 @@
 let map;
-
+let isMobile = $(window).width() < 576;
 
 function getMapProperties() {
   return {
@@ -45,8 +45,11 @@ function mouseoutListener(event) {
 async function clickListener(event) {
   textContent = includeTextContent(event.feature);
   let country = event.feature.getProperty("country");
+  // if (!isMobile) {
   currentDayOne = await backend.getDayOneForCountryRequest(country);
+  console.log("I AM BEFORE PLOT FUNC");
   plot(currentDayOne, siteColorTheme);
+  // }
   document.getElementById("info-box").innerHTML = textContent;
 }
 

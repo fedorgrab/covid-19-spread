@@ -153,3 +153,44 @@ html, body {
     margin-bottom: 0;
 }
 
+
+@media (max-width: 576px) {
+    .header-footer {
+        padding: 25px;
+    }
+
+    .stat-label {
+        padding-left: 15px;
+    }
+
+    .large-size {
+        font-size: 28px;
+    }
+
+    html, body {
+        font-size: 18px;
+    }
+
+    .header-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #source-container {
+        margin-top: 20px;
+    }
+
+    #footer {
+        padding: 25px;
+    }
+
+    .switch-container {
+        display: none;
+    }
+
+    #country-timeline-stat {
+        bottom: 0;
+        box-shadow: none;
+        left: 0;
+    }
+}
