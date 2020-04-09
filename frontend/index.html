@@ -10,6 +10,8 @@
         }
         gtag('js', new Date());
         gtag('config', 'UA-162868789-1');
+        setTimeout(function(){gtag('event', location.pathname, {'event_category': 'Новый посетитель'});}, 15000);
+
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="styles.css">
