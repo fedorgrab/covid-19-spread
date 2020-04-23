@@ -1,10 +1,29 @@
+import json
+
 import pandas as pd
 
 
-class PandasDataFrameSerializer:
+class PandasDataFrameDeserializer:
+    """
+    Base class implementing deserialization of data from API to Pandas DataFrames.
+
+    Inheriting from this class it is required to:
+        Override attribute ``field_mapping``
+        OR
+        Override class method ``get_field_mapping()``
+
+    You may want to use ``get_field_mapping()`` when field mapping names are dynamically
+    calculated.
+
+    The purpose of inheritors of the class is to simply provide how different objects from
+    different APIs should be transformed in a consistent data frame.
+
+    """
+
     field_mapping = None
+
     # Values which in our data frame should be different from API
-    # It is mapped by ourside fields names
+    # It is mapped by our side fields names
     # Should be presented as dict of dicts
     api_values_change_on = None
 
@@ -18,11 +37,21 @@ class PandasDataFrameSerializer:
     @classmethod
     def map_api_values_to_our_format(cls, json_obj, our_field_name, their_field_name):
         their_our_value_mapping = None
-        their_value = json_obj[their_field_name]
+
+        try:
+            their_value = json_obj[their_field_name]
+        except KeyError:
+            raise ValueError(
+                f"Provided JSON object does not contain field `{their_field_name}`"
+            )
+
         if cls.api_values_change_on is not None:
             their_our_value_mapping = cls.api_values_change_on.get(our_field_name)
 
-        if their_our_value_mapping is not None and their_value in their_our_value_mapping:
+        if (
+            their_our_value_mapping is not None
+            and their_value in their_our_value_mapping
+        ):
             return their_our_value_mapping[their_value]
 
         return their_value
@@ -36,18 +65,15 @@ class PandasDataFrameSerializer:
             value = cls.map_api_values_to_our_format(
                 json_obj=json_obj,
                 our_field_name=pandas_column_name,
-                their_field_name=json_field_name
+                their_field_name=json_field_name,
             )
-            try:
-                pandas_row_obj[pandas_column_name] = value
-            except KeyError:
-                raise ValueError(
-                    f"Provided JSON object does not contain field {json_field_name}"
-                )
+            pandas_row_obj[pandas_column_name] = value
+
         return pandas_row_obj
 
     @classmethod
-    def serialize_json_list(cls, json_data, list_field_name=None):
+    def deserialize_json_list(cls, json_data_raw, list_field_name=None):
+        json_data = json.loads(json_data_raw)
         json_list = json_data[list_field_name] if list_field_name else json_data
 
         field_mapping = cls.field_mapping or cls.get_field_mapping()
@@ -60,13 +86,11 @@ class PandasDataFrameSerializer:
         return data_frame
 
 
-class CountrySerializer(PandasDataFrameSerializer):
-    field_mapping = {
-        "slug": "Slug"
-    }
+class CountrySerializer(PandasDataFrameDeserializer):
+    field_mapping = {"slug": "Slug"}
 
 
-class WorldDataTotalSerializer(PandasDataFrameSerializer):
+class WorldDataTotalSerializer(PandasDataFrameDeserializer):
     field_mapping = {
         "country": "Country",
         "cases_confirmed": "TotalConfirmed",
@@ -77,12 +101,12 @@ class WorldDataTotalSerializer(PandasDataFrameSerializer):
         "country": {
             "Russian Federation": "Russia",
             "Iran, Islamic Republic of": "Iran",
-            "Belarus": "Byelarus"
+            "Belarus": "Byelarus",
         }
     }
 
 
-class WorldDataTotalAndNewSerializer(PandasDataFrameSerializer):
+class WorldDataTotalAndNewSerializer(PandasDataFrameDeserializer):
     field_mapping = {
         "country": "Country",
         "cases_confirmed": "TotalConfirmed",
@@ -91,26 +115,22 @@ class WorldDataTotalAndNewSerializer(PandasDataFrameSerializer):
         "cases_confirmed_new": "NewConfirmed",
         "cases_deaths_new": "NewDeaths",
         "cases_recovered_new": "NewRecovered",
-        "date": "Date"
+        "date": "Date",
     }
     api_values_change_on = {
         "country": {
             "Russian Federation": "Russia",
             "Iran, Islamic Republic of": "Iran",
-            "Belarus": "Byelarus"
+            "Belarus": "Byelarus",
         }
     }
 
 
-class CountryDetailStatusSerializer(PandasDataFrameSerializer):
+class CountryDetailStatusSerializer(PandasDataFrameDeserializer):
     CASE_STATUS = None
     api_values_change_on = {
-        "country": {
-            "United States of America": "US",
-        },
-        "province": {
-            "Quebec": "Québec"
-        }
+        "country": {"United States of America": "US"},
+        "province": {"Quebec": "Québec"},
     }
 
     @classmethod
@@ -136,15 +156,15 @@ class CountryDetailRecovered(CountryDetailStatusSerializer):
     CASE_STATUS = "recovered"
 
 
-class DayOneByCountrySerializer(PandasDataFrameSerializer):
+class DayOneByCountrySerializer(PandasDataFrameDeserializer):
     CASE_STATUS = None
     api_values_change_on = {
         "country": {
             "United States of America": "US",
             "Russian Federation": "Russia",
             "Iran, Islamic Republic of": "Iran",
-            "Belarus": "Byelarus"
-        },
+            "Belarus": "Byelarus",
+        }
     }
 
     @classmethod
@@ -177,5 +197,5 @@ SERIALIZER_STATUS_MAPPING = {
 DAY_ONE_SERIALIZER_STATUS_MAPPING = {
     "confirmed": DayOneByCountryConfirmed,
     "deaths": DayOneByCountryDeaths,
-    "recovered": DayOneByCountryRecovered
+    "recovered": DayOneByCountryRecovered,
 }

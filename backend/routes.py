@@ -7,8 +7,8 @@ from graphene_sqlalchemy import SQLAlchemyConnectionField, SQLAlchemyObjectType
 
 from backend import models
 from backend.application import backend_application
-from backend.data_mining import DETAILED_COUNTRIES
 from backend.application.settings import BackendSettings
+from backend.data_mining import DETAILED_COUNTRIES
 
 
 class VirusDailyStatRecordObject(SQLAlchemyObjectType):

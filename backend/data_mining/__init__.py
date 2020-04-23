@@ -1,14 +1,16 @@
 import logging
+import random
+import time
 from datetime import datetime, timedelta
 from functools import reduce
 
-from sqlalchemy import exc
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+from sqlalchemy import exc
 
-from backend.application import db
 from backend import models
+from backend.application import db
 from backend.application.settings import BackendSettings
 from backend.data_mining import serializers
 from backend.data_mining.service import COVID19API
@@ -23,7 +25,7 @@ CASE_STATUSES = ["confirmed", "deaths", "recovered"]
 def extract_world_data() -> pd.DataFrame:
     world_json = COVID19API.get_world_total_cases()
 
-    return serializers.WorldDataTotalSerializer.serialize_json_list(
+    return serializers.WorldDataTotalSerializer.deserialize_json_list(
         world_json, list_field_name="Countries"
     )
 
@@ -47,7 +49,7 @@ def extract_detailed_countries_data(date_after=None):
                 country=country, status=status, date_after=date_after
             )
             serializer = serializers.SERIALIZER_STATUS_MAPPING[status]
-            data_frame = serializer.serialize_json_list(countries_json)
+            data_frame = serializer.deserialize_json_list(countries_json)
             data_frame = data_frame.sort_values(
                 by=f"cases_{status}", ascending=False
             ).drop_duplicates("province")
@@ -71,23 +73,29 @@ def extract_detailed_countries_data(date_after=None):
 
 def extract_day_one_by_country() -> pd.DataFrame:
     countries_json = COVID19API.get_countries()
-    countries = serializers.CountrySerializer.serialize_json_list(countries_json)
+    countries = serializers.CountrySerializer.deserialize_json_list(countries_json)
 
     countries_data_frames = []
     for country in countries["slug"]:
         status_data_frames = []
 
+        time_to_wait_before_next_request = random.uniform(a=0.0, b=0.6)
+        time.sleep(time_to_wait_before_next_request)
+
         for status in CASE_STATUSES:
-            day_one_json = COVID19API.get_dayone_by_country(country=country, status=status)
+            day_one_json = COVID19API.get_day_one_by_country(
+                country=country, status=status
+            )
             day_one_status_data_frame = serializers.DAY_ONE_SERIALIZER_STATUS_MAPPING[
                 status
-            ].serialize_json_list(day_one_json)
+            ].deserialize_json_list(day_one_json)
 
-            day_one_status_data_frame.sort_values(by="date").drop_duplicates(ignore_index=True)
+            day_one_status_data_frame.sort_values(by="date").drop_duplicates(
+                ignore_index=True
+            )
 
             day_one_status_data_frame["date"] = pd.to_datetime(
-                day_one_status_data_frame["date"],
-                format="%Y-%m-%dT%H:%M:%SZ"
+                day_one_status_data_frame["date"], format="%Y-%m-%dT%H:%M:%SZ"
             ).dt.date
             status_data_frames.append(day_one_status_data_frame)
 
@@ -172,7 +180,11 @@ TOTAL_STAT_FIELDS = [
     "cases_recovered_new",
 ]
 DAY_ONE_DB_COLUMNS = [
-    "country", "cases_confirmed", "cases_deaths", "cases_recovered", "date"
+    "country",
+    "cases_confirmed",
+    "cases_deaths",
+    "cases_recovered",
+    "date",
 ]
 
 
@@ -208,12 +220,11 @@ def update_day_one_records(data_frame):
 
 def update_total_data():
     cases_for_all_countries = COVID19API.get_world_total_cases()
-    data_frame = serializers.WorldDataTotalAndNewSerializer.serialize_json_list(
+    data_frame = serializers.WorldDataTotalAndNewSerializer.deserialize_json_list(
         cases_for_all_countries, list_field_name="Countries"
     )
 
-    update_day_one_records(data_frame)
-
+    reload_day_one_records()
     summarized_daily_stat = (
         data_frame[TOTAL_STAT_FIELDS].apply(np.sum, axis=0).to_dict()
     )
@@ -250,14 +261,15 @@ def update_data():
     for country in DETAILED_COUNTRIES:
         country_json = total[total["country"] == country][JSON_WRITE_FIELDS].to_json()
         with open(
-                f"{BackendSettings.STATIC_DIR}/corona_{country.casefold()}_spread.geojson", "w"
+            f"{BackendSettings.STATIC_DIR}/corona_{country.casefold()}_spread.geojson",
+            "w",
         ) as f:
             f.write(country_json)
 
     with open(f"{BackendSettings.STATIC_DIR}/corona_world_spread.geojson", "w") as f:
-        world_json = total[
-            ~total["country"].isin(DETAILED_COUNTRIES)
-        ][JSON_WRITE_FIELDS].to_json()
+        world_json = total[~total["country"].isin(DETAILED_COUNTRIES)][
+            JSON_WRITE_FIELDS
+        ].to_json()
         f.write(world_json)
 
     logging.warning(

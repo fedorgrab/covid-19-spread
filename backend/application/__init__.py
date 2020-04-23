@@ -1,8 +1,8 @@
 # fmt: off
+import sentry_sdk
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sentry_sdk.integrations.flask import FlaskIntegration
-import sentry_sdk
 
 from backend.application.settings import BackendSettings
 

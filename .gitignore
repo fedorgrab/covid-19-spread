@@ -45,6 +45,7 @@ build/
 develop-eggs/
 dist/
 downloads/
+.ipynb_checkpoints/
 eggs/
 lib/
 lib64/

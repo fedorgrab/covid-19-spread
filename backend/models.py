@@ -52,7 +52,5 @@ class VirusDayOneByCountry(db.Model):
 
     __table_name__ = "virus_day_one_by_country"
     __table_args__ = (
-        db.UniqueConstraint(
-            "country", "date", name="country_date_unique_constraint"
-        ),
+        db.UniqueConstraint("country", "date", name="country_date_unique_constraint"),
     )
