@@ -56,6 +56,7 @@ def detailed_countries():
 
 @backend_application.route("/<path:filename>", methods=["GET"])
 def dev_frontend_test(filename):
+    print(filename)
     return send_from_directory(
         directory=f"{BackendSettings.BASE_DIR}/frontend", filename=filename
     )
